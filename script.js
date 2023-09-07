@@ -11,32 +11,6 @@ const categoriasTable = document.getElementById('categorias-table');
 
 const mesesData = {};
 
-agregarBtn.addEventListener('click', () => {
-  const fecha = fechaInput.value;
-  const descripcion = descripcionInput.value;
-  const categoria = categoriaInput.value;
-  const tipo = tipoInput.value;
-  const monto = parseFloat(montoInput.value);
-
-  const fechaParts = fecha.split('-');
-  const year = fechaParts[0];
-  const month = fechaParts[1];
-
-  if (!mesesData[year]) {
-    mesesData[year] = {};
-  }
-
-  if (!mesesData[year][month]) {
-    mesesData[year][month] = [];
-  }
-
-  mesesData[year][month].push({ fecha, descripcion, categoria, tipo, monto });
-  actualizarTablaMensual(year, month);
-  actualizarTablaCategorias();
-  actualizarBalanceGeneral();
-  limpiarFormulario();
-});
-
 function agregarFila(tabla, datos) {
   const fila = tabla.insertRow();
   for (const dato of datos) {
@@ -80,31 +54,36 @@ function actualizarTablaMensual(year, month) {
   }
 }
 
-function actualizarTablaCategorias() {
-  categoriasTable.innerHTML = '';
-  
-  const encabezados = ['Categoría', 'Total Gastado'];
-  agregarFila(categoriasTable, encabezados);
-  
-  const categoriasTotales = {};
-  
-  for (const year in mesesData) {
-    for (const month in mesesData[year]) {
-      for (const registro of mesesData[year][month]) {
-        if (registro.tipo === 'Gasto') {
-          if (!categoriasTotales[registro.categoria]) {
-            categoriasTotales[registro.categoria] = 0;
-          }
-          categoriasTotales[registro.categoria] += registro.monto;
-        }
-      }
-    }
+function actualizarTablaIngresos(year, month) {
+  const ingresosMensuales = mesesData[year][month].filter((registro) => registro.tipo === 'Ingreso');
+  const ingresosTable = document.getElementById('ingresos-table'); // Obtener la tabla existente de ingresos
+
+  // Limpiar la tabla existente
+  while (ingresosTable.rows.length > 1) {
+    ingresosTable.deleteRow(1);
   }
-  
-  for (const categoria in categoriasTotales) {
-    agregarFila(categoriasTable, [categoria, `$${categoriasTotales[categoria].toFixed(2)}`]);
+
+  for (const registro of ingresosMensuales) {
+    agregarFila(ingresosTable, [registro.categoria, registro.descripcion, `$${registro.monto}`]);
   }
 }
+
+function actualizarTablaGastos(year, month) {
+  const gastosMensuales = mesesData[year][month].filter((registro) => registro.tipo === 'Gasto');
+  const gastosTable = document.getElementById('gastos-table'); // Obtener la tabla existente de gastos
+
+  // Limpiar la tabla existente
+  while (gastosTable.rows.length > 1) {
+    gastosTable.deleteRow(1);
+  }
+
+  for (const registro of gastosMensuales) {
+    agregarFila(gastosTable, [registro.categoria, registro.descripcion, `$${registro.monto}`]);
+  }
+}
+
+
+
 
 function actualizarBalanceGeneral() {
   const balanceTable = document.getElementById('balance-table');
@@ -133,37 +112,8 @@ function actualizarBalanceGeneral() {
   agregarFila(balanceTable, [`$${ingresosTotales.toFixed(2)}`, `$${gastosTotales.toFixed(2)}`, `$${ingresoGasto.toFixed(2)}`]);
 }
 
-function actualizarTablaCategoriasIngresos() {
-  const categoriasIngresosTable = document.getElementById('categorias-ingresos-table');
-  categoriasIngresosTable.innerHTML = '';
-
-  const encabezados = ['Categoría', 'Total Ingresado'];
-  agregarFila(categoriasIngresosTable, encabezados);
-
-  const categoriasIngresosTotales = {};
-
-  for (const year in mesesData) {
-    for (const month in mesesData[year]) {
-      for (const registro of mesesData[year][month]) {
-        if (registro.tipo === 'Ingreso') {
-          if (!categoriasIngresosTotales[registro.categoriaIngresos]) {
-            categoriasIngresosTotales[registro.categoriaIngresos] = 0;
-          }
-          categoriasIngresosTotales[registro.categoriaIngreso] += registro.monto;        }
-      }
-    }
-  }
-
-  for (const categoriaIngresos in categoriasIngresosTotales) {
-    agregarFila(
-      categoriasIngresosTable,
-      [categoriaIngresos, `$${categoriasIngresosTotales[categoriaIngresos].toFixed(2)}`]
-    );
-  }
-}
 
 
-const categoriasIngresosInput = document.getElementById('categoria-ingresos-table');
 
 agregarBtn.addEventListener('click', () => {
   const fecha = fechaInput.value;
@@ -171,31 +121,33 @@ agregarBtn.addEventListener('click', () => {
   const categoria = categoriaInput.value;
   const tipo = tipoInput.value;
   const monto = parseFloat(montoInput.value);
-  const categoriaIngresos = categoriasIngresosInput.value; // Capturing income category
+  const fechaParts = fecha.split('-');
+  const year = fechaParts[0];
+  const month = fechaParts[1];
 
-  if (fecha && (tipo === 'Ingreso' || descripcion) && !isNaN(monto)) {
-    const fechaParts = fecha.split('-');
-    const year = fechaParts[0];
-    const month = fechaParts[1];
-
-    if (!mesesData[year]) {
-      mesesData[year] = {};
-    }
-
-    if (!mesesData[year][month]) {
-      mesesData[year][month] = [];
-    }
-
-    mesesData[year][month].push({ fecha, descripcion, categoria, tipo, monto, categoriaIngresos }); // Including categoriaIngresos
-    actualizarTablaMensual(year, month);
-    actualizarTablaCategorias();
-    actualizarTablaCategoriasIngresos(); // Updating income categories table
-    actualizarBalanceGeneral();
-    limpiarFormulario();
-  } else {
-    alert("Por favor, ingresa información válida en los campos requeridos.");
+  if (!mesesData[year]) {
+    mesesData[year] = {};
   }
+
+  if (!mesesData[year][month]) {
+    mesesData[year][month] = [];
+  }
+
+  mesesData[year][month].push({ fecha, descripcion, categoria, tipo, monto });
+
+  actualizarTablaMensual(year, month);
+
+  if (tipo === 'Ingreso') {
+    actualizarTablaIngresos(year, month);
+  } else if (tipo === 'Gasto') {
+    actualizarTablaGastos(year, month);
+  }
+
+  actualizarBalanceGeneral();
+  limpiarFormulario();
 });
+
+
 
 
 function limpiarFormulario() {
@@ -212,4 +164,3 @@ function limpiarFormulario() {
 actualizarTablaMensual();
 actualizarTablaCategorias();
 actualizarBalanceGeneral();
-actualizarTablaCategoriasIngresos();
