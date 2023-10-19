@@ -52,48 +52,40 @@ footer {
   text-align: center;
 }
 
-/* Otros estilos personalizados */
-/* Estilos para las tablas */
-table {
-  border-collapse: collapse;
-  width: 100%;
-  border-radius: 8px;
-  overflow: hidden;
-  margin-top: 10px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-th, td {
-  padding: 12px;
-  text-align: center;
-}
-
-th {
-  background-color: #333;
-  color: #fff;
-}
-
-tr:nth-child(even) {
-  background-color: #f2f2f2;
-}
-
-/* Estilos para los encabezados de sección */
-section h2 {
-  margin-bottom: 15px;
-}
-
-/* Estilos para el pie de página */
-footer {
-  background-color: #333;
-  color: #fff;
-  text-align: center;
-  padding: 10px;
-  position: relative;
-  bottom: 0;
-  width: 100%;
-}
-
 /* Estilos adicionales... */
 main {
   position: relative;
+}
+
+/* Media Queries for Responsiveness */
+@media (max-width: 768px) {
+  /* Adjust styles for screens smaller than 768px wide */
+  header, main, footer {
+    padding: 10px;
+  }
+  section {
+    margin-bottom: 20px;
+  }
+  table {
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  /* Adjust styles for screens smaller than 480px wide */
+  body {
+    font-size: 14px;
+  }
+  header {
+    font-size: 24px;
+  }
+  section {
+    font-size: 16px;
+  }
+  table {
+    font-size: 12px;
+  }
+  footer {
+    font-size: 14px;
+  }
 }
