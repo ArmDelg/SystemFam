@@ -8,9 +8,7 @@ const montoInput = document.getElementById('monto');
 const agregarBtn = document.getElementById('agregar-btn');
 const balanceTable = document.getElementById('balance-table');
 const categoriasTable = document.getElementById('categorias-table');
-
 const mesesData = {};
-
 function agregarFila(tabla, datos) {
   const fila = tabla.insertRow();
   for (const dato of datos) {
@@ -18,7 +16,6 @@ function agregarFila(tabla, datos) {
     celda.textContent = dato;
   }
 }
-
 function actualizarTablaMensual(year, month) {
   const mesActual = mesesData[year][month];
   const tableId = `mes-table-${year}-${month}`;
@@ -53,7 +50,6 @@ function actualizarTablaMensual(year, month) {
     agregarFila(mesTable, [registro.fecha, registro.descripcion, registro.categoria, registro.tipo, `$${registro.monto}`]);
   }
 }
-
 function actualizarTablaIngresos(year, month) {
   const ingresosMensuales = mesesData[year][month].filter((registro) => registro.tipo === 'Ingreso');
   const ingresosTable = document.getElementById('ingresos-table'); // Obtener la tabla existente de ingresos
@@ -67,7 +63,6 @@ function actualizarTablaIngresos(year, month) {
     agregarFila(ingresosTable, [registro.categoria, registro.descripcion, `$${registro.monto}`]);
   }
 }
-
 function actualizarTablaGastos(year, month) {
   const gastosMensuales = mesesData[year][month].filter((registro) => registro.tipo === 'Gasto');
   const gastosTable = document.getElementById('gastos-table'); // Obtener la tabla existente de gastos
@@ -81,10 +76,6 @@ function actualizarTablaGastos(year, month) {
     agregarFila(gastosTable, [registro.categoria, registro.descripcion, `$${registro.monto}`]);
   }
 }
-
-
-
-
 function actualizarBalanceGeneral() {
   const balanceTable = document.getElementById('balance-table');
   balanceTable.innerHTML = '';
@@ -111,11 +102,7 @@ function actualizarBalanceGeneral() {
 
   agregarFila(balanceTable, [`$${ingresosTotales.toFixed(2)}`, `$${gastosTotales.toFixed(2)}`, `$${ingresoGasto.toFixed(2)}`]);
 }
-
-
-
-
-agregarBtn.addEventListener('click', () => {
+agregarBtn.addEventListener('click', async () => {
   const fecha = fechaInput.value;
   const descripcion = descripcionInput.value;
   const categoria = categoriaInput.value;
@@ -145,11 +132,21 @@ agregarBtn.addEventListener('click', () => {
 
   actualizarBalanceGeneral();
   limpiarFormulario();
+
+  // Ejemplo de cómo agregar un registro a Firestore
+  try {
+    await addDoc(collection(db, 'registros'), {
+      fecha,
+      descripcion,
+      categoria,
+      tipo,
+      monto,
+    });
+    console.log('Registro agregado a Firestore.');
+  } catch (error) {
+    console.error('Error al agregar el registro a Firestore:', error);
+  }
 });
-
-
-
-
 function limpiarFormulario() {
   fechaInput.value = '';
   descripcionInput.value = '';
@@ -157,10 +154,7 @@ function limpiarFormulario() {
   tipoInput.value = 'Ingreso';
   montoInput.value = '';
 }
-
-
-
 // Llamadas iniciales
 actualizarTablaMensual();
-actualizarTablaCategorias();
 actualizarBalanceGeneral();
+
